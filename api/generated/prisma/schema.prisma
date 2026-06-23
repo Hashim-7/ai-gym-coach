@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime   @default(now())
+  workouts     Workout[]
+  exercises    Exercise[]
+  meals        Meal[]
+  food         Food[]
+  metrics      Metric[]
+  media        Media[]
+}
+
+model Workout {
+  id        String   @id @default(uuid())
+  creatorId String
+  name      String
+  date      DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  sets      Set[]
+
+  @@unique([creatorId, name])
+}
+
+model Exercise {
+  id          Int     @id @default(autoincrement())
+  creatorId   String?
+  name        String
+  notes       String?
+  muscleGroup String
+  user        User?   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  sets        Set[]
+
+  @@unique([creatorId, name])
+}
+
+model Set {
+  id         String   @id @default(uuid())
+  workoutId  String
+  exerciseId Int
+  weight     Decimal  @db.Decimal(5, 2)
+  reps       Int
+  createdAt  DateTime @default(now())
+  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+}
+
+model Meal {
+  id        String     @id @default(uuid())
+  creatorId String
+  name      String
+  date      DateTime
+  user      User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  mealFoods MealFood[]
+
+  @@unique([creatorId, name])
+}
+
+model Food {
+  id          Int        @id @default(autoincrement())
+  creatorId   String?
+  name        String
+  calories    Int
+  protein     Decimal    @db.Decimal(5, 2)
+  carbs       Decimal    @db.Decimal(5, 2)
+  fats        Decimal    @db.Decimal(5, 2)
+  servingSize Float
+  servingUnit String
+  user        User?      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  mealFoods   MealFood[]
+
+  @@unique([creatorId, name])
+}
+
+model MealFood {
+  id         Int      @id @default(autoincrement())
+  mealId     String
+  foodId     Int
+  servingsNo Decimal  @db.Decimal(7, 2)
+  createdAt  DateTime @default(now())
+  meal       Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  food       Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
+}
+
+model Metric {
+  id            String   @id @default(uuid())
+  creatorId     String
+  date          DateTime
+  weight        Decimal  @db.Decimal(5, 2)
+  fatPercentage Decimal  @db.Decimal(3, 1)
+  waist         Decimal  @db.Decimal(3, 1)
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
+
+model Media {
+  id        String   @id @default(uuid())
+  creatorId String
+  url       String
+  type      String
+  relatedId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
