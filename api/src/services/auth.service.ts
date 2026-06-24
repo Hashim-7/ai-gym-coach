@@ -33,7 +33,7 @@ Contain at least one special character`);
     return newUser;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, rememberMe: boolean) {
     const user = await userRepo.findByEmail(email);
     if (!user) {
       throw new Error("Invalid email or password");
@@ -49,7 +49,7 @@ Contain at least one special character`);
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+      expiresIn: "30d",
     });
 
     return {
@@ -58,7 +58,7 @@ Contain at least one special character`);
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict" as const,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        ...(rememberMe ? { maxAge: 30 * 24 * 60 * 60 * 1000 } : {}),
       },
     };
   }

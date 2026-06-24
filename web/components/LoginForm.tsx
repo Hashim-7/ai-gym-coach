@@ -13,6 +13,7 @@ export default function LoginForm() {
       email: formData.get("Email"),
       password: formData.get("Password"),
       username: formData.get("username"),
+      rememberMe: formData.get("rememberMe") === "on",
     };
 
     try {

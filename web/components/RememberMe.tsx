@@ -1,7 +1,7 @@
 export default function RememberMe() {
   return (
     <label className="flex items-center gap-3 text-base">
-      <input type="checkbox" className="checkbox" />
+      <input type="checkbox" className="checkbox" name="rememberMe" />
       <span>Remember me</span>
     </label>
   );

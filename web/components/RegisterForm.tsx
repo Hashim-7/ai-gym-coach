@@ -14,6 +14,7 @@ export default function RegisterForm() {
       password: formData.get("Password"),
       name: formData.get("Name"),
       username: formData.get("username"),
+      rememberMe: formData.get("rememberMe") === "on",
     };
 
     try {

@@ -22,14 +22,18 @@ export class AuthController {
 
   async login(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password, username } = req.body;
+      const { email, password, username, rememberMe } = req.body;
 
       if (username) {
         res.status(200).json({ message: "Login successful" });
         return;
       }
 
-      const { token, cookieOptions } = await authService.login(email, password);
+      const { token, cookieOptions } = await authService.login(
+        email,
+        password,
+        !!rememberMe,
+      );
 
       res.cookie("token", token, cookieOptions);
       res.status(200).json({ message: "Login successful" });
