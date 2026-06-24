@@ -29,10 +29,12 @@ export class AuthController {
         return;
       }
 
+      const isPersistent = !!rememberMe;
+
       const { token, cookieOptions } = await authService.login(
         email,
         password,
-        !!rememberMe,
+        isPersistent,
       );
 
       res.cookie("token", token, cookieOptions);

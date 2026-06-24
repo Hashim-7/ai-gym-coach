@@ -17,14 +17,17 @@ export default function LoginForm() {
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+          credentials: "include",
         },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
+      );
 
       const result = await response.json();
       if (!response.ok) {
