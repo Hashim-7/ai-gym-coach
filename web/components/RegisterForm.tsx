@@ -13,6 +13,7 @@ export default function RegisterForm() {
       email: formData.get("Email"),
       password: formData.get("Password"),
       name: formData.get("Name"),
+      username: formData.get("username"),
     };
 
     try {
@@ -40,6 +41,11 @@ export default function RegisterForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
+      {/* Honeypot field to prevent botspam */}
+      <div style={{ display: "none" }} aria-hidden="true">
+        <input type="text" name="username" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <AuthInput field="Name" />
       <AuthInput field="Email" />
       <AuthInput field="Password" />

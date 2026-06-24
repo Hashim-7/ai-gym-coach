@@ -12,6 +12,7 @@ export default function LoginForm() {
     const data = {
       email: formData.get("Email"),
       password: formData.get("Password"),
+      username: formData.get("username"),
     };
 
     try {
@@ -37,6 +38,11 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Honeypot field to prevent botspam */}
+      <div style={{ display: "none" }} aria-hidden="true">
+        <input type="text" name="username" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <AuthInput field="Email" />
       <AuthInput field="Password" />
 
