@@ -2,9 +2,11 @@
 import AuthInput from "@/components/AuthInput";
 import RememberMe from "@/components/RememberMe";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginForm() {
   const router = useRouter();
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,7 +38,7 @@ export default function LoginForm() {
 
       router.push("/dashboard");
     } catch (error) {
-      console.error(error);
+      setError((error as Error).message);
     }
   };
 
@@ -51,6 +53,8 @@ export default function LoginForm() {
       <AuthInput field="Password" />
 
       <RememberMe />
+
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <button type="submit" className="btn btn-primary btn-lg w-full">
         Sign In

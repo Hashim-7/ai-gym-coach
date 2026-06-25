@@ -7,6 +7,10 @@ const userRepo = new UserRepository();
 
 export class AuthService {
   async register(email: string, password: string, name: string): Promise<User> {
+    if (!name.trim()) {
+      throw new Error("Name is required");
+    }
+
     const existingUser = await userRepo.findByEmail(email);
     if (existingUser) {
       throw new Error("An account is already registered with this email");
