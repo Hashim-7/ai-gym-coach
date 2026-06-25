@@ -1,0 +1,49 @@
+import type { Request, Response } from "express";
+import { AuthService } from "../services/auth.service.js";
+
+const authService = new AuthService();
+
+export class AuthController {
+  async register(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password, name, username } = req.body;
+
+      // hidden message to prevent botspam with hidden field (honeypot)
+      if (username) {
+        res.status(201).json({ message: "Registration successful" });
+        return;
+      }
+
+      const user = await authService.register(email, password, name);
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password, username, rememberMe } = req.body;
+
+      // hidden message to prevent botspam with hidden field (honeypot)
+      if (username) {
+        res.status(200).json({ message: "Login successful" });
+        return;
+      }
+
+      // browser treats session differently if remember me checked
+      const isPersistent = !!rememberMe;
+
+      const { token, cookieOptions } = await authService.login(
+        email,
+        password,
+        isPersistent,
+      );
+
+      res.cookie("token", token, cookieOptions);
+      res.status(200).json({ message: "Login successful" });
+    } catch (error) {
+      res.status(401).json({ message: (error as Error).message });
+    }
+  }
+}
