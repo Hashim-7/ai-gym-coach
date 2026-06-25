@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (
+  // protects access to routes that you must be logged in to use
   req: Request,
   res: Response,
   next: NextFunction,

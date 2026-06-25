@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
+  // hides protected pages from users that aren't logged in
+  // hides login/signup pages from users that are logged in
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 

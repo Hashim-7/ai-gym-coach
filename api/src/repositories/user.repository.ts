@@ -9,8 +9,10 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 export class UserRepository {
+  // to prevent storing duplicate emails
   private normalise = (email: string): string => email.trim().toLowerCase();
 
+  // to check email exists/doesn't exist on db
   async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { email: this.normalise(email) } });
   }

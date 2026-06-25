@@ -5,6 +5,7 @@ import { rateLimiter } from "../middleware/rateLimiter.js";
 const router = Router();
 const authController = new AuthController();
 
+// rate limiting middleware for auth routes to prevent spam
 router.post(
   "/register",
   rateLimiter,

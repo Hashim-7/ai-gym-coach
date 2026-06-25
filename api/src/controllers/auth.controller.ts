@@ -8,6 +8,7 @@ export class AuthController {
     try {
       const { email, password, name, username } = req.body;
 
+      // hidden message to prevent botspam with hidden field (honeypot)
       if (username) {
         res.status(201).json({ message: "Registration successful" });
         return;
@@ -24,11 +25,13 @@ export class AuthController {
     try {
       const { email, password, username, rememberMe } = req.body;
 
+      // hidden message to prevent botspam with hidden field (honeypot)
       if (username) {
         res.status(200).json({ message: "Login successful" });
         return;
       }
 
+      // browser treats session differently if remember me checked
       const isPersistent = !!rememberMe;
 
       const { token, cookieOptions } = await authService.login(

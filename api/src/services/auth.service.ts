@@ -6,6 +6,7 @@ import type { User } from "../../generated/prisma/index.js";
 const userRepo = new UserRepository();
 
 export class AuthService {
+  // returns newly created user
   async register(email: string, password: string, name: string): Promise<User> {
     if (!name.trim()) {
       throw new Error("Name is required");
@@ -38,6 +39,7 @@ Contain at least one special character`);
   }
 
   async login(email: string, password: string, rememberMe: boolean) {
+    // returns jwt token of logging in user
     const user = await userRepo.findByEmail(email);
     if (!user) {
       throw new Error("Invalid email or password");
