@@ -34,7 +34,7 @@ model WorkoutTemplate {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   sessions WorkoutSession[]
-  exercises WorkoutTemplateExercise[]
+  exercises WorkoutExercise[]
   @@unique([creatorId, name])
 }
 
@@ -58,21 +58,22 @@ model Exercise {
 
   user        User?   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  templateExercises WorkoutTemplateExercise[]
+  templateExercises WorkoutExercise[]
   sets              Set[]
 
   @@unique([creatorId, name])
 }
 
-model WorkoutTemplateExercise {
+model WorkoutExercise {
   id          String @id @default(uuid())
 
   templateId  String
   exerciseId  Int
 
   order       Int
-  targetSets  Int
+  targetSets  Int?
   targetReps  Int?
+  targetWeight Decimal  @db.Decimal(5, 2)
 
   template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)

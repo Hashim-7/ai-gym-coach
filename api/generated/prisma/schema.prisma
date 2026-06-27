@@ -13,29 +13,41 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  passwordHash String
-  name         String
-  createdAt    DateTime   @default(now())
-  workouts     Workout[]
-  exercises    Exercise[]
-  meals        Meal[]
-  food         Food[]
-  metrics      Metric[]
-  media        Media[]
+  id               String            @id @default(uuid())
+  email            String            @unique
+  passwordHash     String
+  name             String
+  createdAt        DateTime          @default(now())
+  workoutTemplates WorkoutTemplate[]
+  workoutSessions  WorkoutSession[]
+  exercises        Exercise[]
+  meals            Meal[]
+  food             Food[]
+  metrics          Metric[]
+  media            Media[]
 }
 
-model Workout {
-  id        String   @id @default(uuid())
+model WorkoutTemplate {
+  id        String            @id @default(uuid())
   creatorId String
   name      String
-  date      DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  sets      Set[]
+  createdAt DateTime          @default(now())
+  user      User              @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  sessions  WorkoutSession[]
+  exercises WorkoutExercise[]
 
   @@unique([creatorId, name])
+}
+
+model WorkoutSession {
+  id         Int              @id @default(autoincrement())
+  creatorId  String
+  templateId String?
+  date       DateTime
+  createdAt  DateTime         @default(now())
+  user       User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  template   WorkoutTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  sets       Set[]
 }
 
 model Exercise {
@@ -44,21 +56,45 @@ model Exercise {
   name        String
   notes       String?
   muscleGroup String
-  user        User?   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  sets        Set[]
+
+  user User? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  templateExercises WorkoutExercise[]
+  sets              Set[]
 
   @@unique([creatorId, name])
 }
 
-model Set {
-  id         String   @id @default(uuid())
-  workoutId  String
+model WorkoutExercise {
+  id String @id @default(uuid())
+
+  templateId String
   exerciseId Int
-  weight     Decimal  @db.Decimal(5, 2)
+
+  order        Int
+  targetSets   Int?
+  targetReps   Int?
+  targetWeight Decimal @db.Decimal(5, 2)
+
+  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exercise Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, order])
+  @@unique([templateId, exerciseId])
+}
+
+model Set {
+  id         String         @id @default(uuid())
+  workoutId  Int
+  exerciseId Int
+  setNumber  Int
+  weight     Decimal        @db.Decimal(5, 2)
   reps       Int
-  createdAt  DateTime @default(now())
-  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  createdAt  DateTime       @default(now())
+  workout    WorkoutSession @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise   Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([workoutId, exerciseId, setNumber])
 }
 
 model Meal {

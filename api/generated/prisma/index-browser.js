@@ -128,10 +128,17 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.WorkoutScalarFieldEnum = {
+exports.Prisma.WorkoutTemplateScalarFieldEnum = {
   id: 'id',
   creatorId: 'creatorId',
   name: 'name',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.WorkoutSessionScalarFieldEnum = {
+  id: 'id',
+  creatorId: 'creatorId',
+  templateId: 'templateId',
   date: 'date',
   createdAt: 'createdAt'
 };
@@ -144,10 +151,21 @@ exports.Prisma.ExerciseScalarFieldEnum = {
   muscleGroup: 'muscleGroup'
 };
 
+exports.Prisma.WorkoutExerciseScalarFieldEnum = {
+  id: 'id',
+  templateId: 'templateId',
+  exerciseId: 'exerciseId',
+  order: 'order',
+  targetSets: 'targetSets',
+  targetReps: 'targetReps',
+  targetWeight: 'targetWeight'
+};
+
 exports.Prisma.SetScalarFieldEnum = {
   id: 'id',
   workoutId: 'workoutId',
   exerciseId: 'exerciseId',
+  setNumber: 'setNumber',
   weight: 'weight',
   reps: 'reps',
   createdAt: 'createdAt'
@@ -217,8 +235,10 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Workout: 'Workout',
+  WorkoutTemplate: 'WorkoutTemplate',
+  WorkoutSession: 'WorkoutSession',
   Exercise: 'Exercise',
+  WorkoutExercise: 'WorkoutExercise',
   Set: 'Set',
   Meal: 'Meal',
   Food: 'Food',
