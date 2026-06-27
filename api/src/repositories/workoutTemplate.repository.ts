@@ -1,17 +1,20 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
 import type { WorkoutTemplate } from "../../generated/prisma/index.js";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "../db.js";
 
 export class WorkoutTemplateRepository {
+  // transaction wrapper that passes the internal client back
+  async transaction<T>(callback: (tx: any) => Promise<T>): Promise<T> {
+    return prisma.$transaction(callback);
+  }
+
   // creates a workout template
-  async create(creatorId: string, name: string): Promise<WorkoutTemplate> {
-    return prisma.workoutTemplate.create({
+  async create(
+    creatorId: string,
+    name: string,
+    tx?: any, // optional prisma transaction client
+  ): Promise<WorkoutTemplate> {
+    const client = tx ?? prisma; // fallback to default if no transaction
+    return client.workoutTemplate.create({
       data: {
         creatorId,
         name,

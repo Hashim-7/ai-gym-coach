@@ -3,16 +3,16 @@ import jwt from "jsonwebtoken";
 import { UserRepository } from "../repositories/user.repository.js";
 import type { User } from "../../generated/prisma/index.js";
 
-const userRepo = new UserRepository();
-
 export class AuthService {
+  private userRepo = new UserRepository();
+
   // returns newly created user
   async register(email: string, password: string, name: string): Promise<User> {
     if (!name.trim()) {
       throw new Error("Name is required");
     }
 
-    const existingUser = await userRepo.findByEmail(email);
+    const existingUser = await this.userRepo.findByEmail(email);
     if (existingUser) {
       throw new Error("An account is already registered with this email");
     }
@@ -34,13 +34,13 @@ Contain at least one special character`);
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = await userRepo.create(email, passwordHash, name);
+    const newUser = await this.userRepo.create(email, passwordHash, name);
     return newUser;
   }
 
   async login(email: string, password: string, rememberMe: boolean) {
     // returns jwt token of logging in user
-    const user = await userRepo.findByEmail(email);
+    const user = await this.userRepo.findByEmail(email);
     if (!user) {
       throw new Error("Invalid email or password");
     }

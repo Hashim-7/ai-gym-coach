@@ -1,12 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
 import type { WorkoutExercise } from "../../generated/prisma/index.js";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "../db.js";
 
 export class WorkoutExerciseRepository {
   // create a new instance of an exercise within a workout
@@ -17,8 +10,10 @@ export class WorkoutExerciseRepository {
     targetSets: number,
     targetReps: number,
     targetWeight: number,
+    tx?: any, // optional prisma transaction client
   ): Promise<WorkoutExercise> {
-    return prisma.workoutExercise.create({
+    const client = tx ?? prisma; // fallback to default if no transaction
+    return client.workoutExercise.create({
       data: {
         templateId,
         exerciseId,
