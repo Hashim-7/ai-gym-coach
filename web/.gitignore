@@ -39,4 +39,8 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+<<<<<<< HEAD
 next-env.d.ts
+=======
+next-env.d.ts
+>>>>>>> 70c5597 (updated prisma schema to allow for live workouts, repeated workout templates and adjusted exercise logic)
