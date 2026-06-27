@@ -18,7 +18,8 @@ model User {
   passwordHash String
   name         String
   createdAt    DateTime   @default(now())
-  workouts     Workout[]
+  workoutTemplates WorkoutTemplate[]
+  workoutSessions  WorkoutSession[]
   exercises    Exercise[]
   meals        Meal[]
   food         Food[]
@@ -26,16 +27,26 @@ model User {
   media        Media[]
 }
 
-model Workout {
+model WorkoutTemplate {
   id        String   @id @default(uuid())
   creatorId String
   name      String
-  date      DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  sets      Set[]
-
+  sessions WorkoutSession[]
+  exercises WorkoutTemplateExercise[]
   @@unique([creatorId, name])
+}
+
+model WorkoutSession {
+  id        Int @id @default(autoincrement())
+  creatorId String
+  templateId String?
+  date      DateTime
+  createdAt DateTime @default(now())
+  user        User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  template    WorkoutTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  sets        Set[]
 }
 
 model Exercise {
@@ -44,21 +55,43 @@ model Exercise {
   name        String
   notes       String?
   muscleGroup String
+
   user        User?   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  sets        Set[]
+
+  templateExercises WorkoutTemplateExercise[]
+  sets              Set[]
 
   @@unique([creatorId, name])
 }
 
+model WorkoutTemplateExercise {
+  id          String @id @default(uuid())
+
+  templateId  String
+  exerciseId  Int
+
+  order       Int
+  targetSets  Int
+  targetReps  Int?
+
+  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, order])
+  @@unique([templateId, exerciseId])
+}
+
 model Set {
   id         String   @id @default(uuid())
-  workoutId  String
+  workoutId  Int
   exerciseId Int
+  setNumber  Int
   weight     Decimal  @db.Decimal(5, 2)
   reps       Int
   createdAt  DateTime @default(now())
-  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  workout    WorkoutSession  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
   exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  @@unique([workoutId, exerciseId, setNumber])
 }
 
 model Meal {
