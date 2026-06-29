@@ -6,13 +6,25 @@ import type { User } from "../../generated/prisma/index.js";
 export class AuthService {
   private userRepo = new UserRepository();
 
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   // returns newly created user
   async register(email: string, password: string, name: string): Promise<User> {
-    if (!name.trim()) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
+
+    if (!normalizedName) {
       throw new Error("Name is required");
     }
 
-    const existingUser = await this.userRepo.findByEmail(email);
+    if (!normalizedEmail || !this.isValidEmail(normalizedEmail)) {
+      throw new Error("A valid email address is required");
+    }
+
+    const existingUser = await this.userRepo.findByEmail(normalizedEmail);
     if (existingUser) {
       throw new Error("An account is already registered with this email");
     }
@@ -25,22 +37,29 @@ export class AuthService {
       /[^A-Za-z0-9]/.test(password);
 
     if (!strongPassword) {
-      throw new Error(`Password must:
-Be at least 8 characters long
-Contain at least one uppercase letter
-Contain at least one lowercase letter
-Contain at least one number
-Contain at least one special character`);
+      throw new Error(
+        "Password must be at least 8 characters long and contain an uppercase letter, lowercase letter, number, and special character.",
+      );
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = await this.userRepo.create(email, passwordHash, name);
+    const newUser = await this.userRepo.create(
+      normalizedEmail,
+      passwordHash,
+      normalizedName,
+    );
     return newUser;
   }
 
+  // returns jwt token of logging in user
   async login(email: string, password: string, rememberMe: boolean) {
-    // returns jwt token of logging in user
-    const user = await this.userRepo.findByEmail(email);
+    if (!email || !password) {
+      throw new Error("Email and password are required");
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await this.userRepo.findByEmail(normalizedEmail);
     if (!user) {
       throw new Error("Invalid email or password");
     }
@@ -54,8 +73,9 @@ Contain at least one special character`);
       throw new Error("JWT_SECRET is missing");
     }
 
+    const tokenExpiry = rememberMe ? "30d" : "1d";
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
+      expiresIn: tokenExpiry,
     });
 
     return {

@@ -17,7 +17,9 @@ export class AuthController {
       const user = await authService.register(email, password, name);
       res.status(201).json(user);
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      const errMsg =
+        error instanceof Error ? error.message : "Registration failed";
+      res.status(400).json({ message: errMsg });
     }
   }
 
@@ -43,7 +45,14 @@ export class AuthController {
       res.cookie("token", token, cookieOptions);
       res.status(200).json({ message: "Login successful" });
     } catch (error) {
-      res.status(401).json({ message: (error as Error).message });
+      const errMsg = error instanceof Error ? error.message : "";
+
+      if (errMsg === "JWT_SECRET is missing" || errMsg.includes("database")) {
+        res.status(500).json({ message: "An internal server error occurred" });
+        return;
+      }
+
+      res.status(401).json({ message: errMsg || "Invalid email or password" });
     }
   }
 }
