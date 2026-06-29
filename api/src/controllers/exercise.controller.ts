@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { WorkoutService } from "../services/workout.service.js";
 
-// 1. Define the AuthenticatedRequest interface to include req.user
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
@@ -11,12 +10,9 @@ interface AuthenticatedRequest extends Request {
 export class ExerciseController {
   private workoutService = new WorkoutService();
 
-  /**
-   * GET /api/exercises
-   * Fetch all exercises available to the user.
-   */
+  // GET /api/exercises
   public getAvailableExercises = async (
-    req: AuthenticatedRequest, // Fixed: Changed from Request to AuthenticatedRequest
+    req: AuthenticatedRequest,
     res: Response,
   ): Promise<void> => {
     try {
@@ -27,7 +23,6 @@ export class ExerciseController {
         return;
       }
 
-      // TypeScript now safely knows creatorId is strictly a string here
       const exercises =
         await this.workoutService.getAvailableExercises(creatorId);
       res.status(200).json(exercises);
@@ -36,12 +31,9 @@ export class ExerciseController {
     }
   };
 
-  /**
-   * POST /api/exercises
-   * Create a new custom exercise definition.
-   */
+  // Create a new custom exercise definition.
   public createCustomExercise = async (
-    req: AuthenticatedRequest, // Fixed: Changed from Request to AuthenticatedRequest
+    req: AuthenticatedRequest,
     res: Response,
   ): Promise<void> => {
     try {
@@ -66,17 +58,14 @@ export class ExerciseController {
     }
   };
 
-  /**
-   * PATCH /api/exercises/:id
-   * Update fields on an existing custom exercise definition.
-   */
+  // Update fields on an existing custom exercise definition.
   public updateCustomExercise = async (
-    req: AuthenticatedRequest, // Fixed: Changed from Request to AuthenticatedRequest
+    req: AuthenticatedRequest,
     res: Response,
   ): Promise<void> => {
     try {
       const creatorId = req.user?.id;
-      const id = parseInt(req.params.id as string, 10); // Added type assertion safely
+      const id = parseInt(req.params.id as string, 10);
       const { name, muscleGroup, notes } = req.body;
 
       if (!creatorId) {
@@ -105,17 +94,14 @@ export class ExerciseController {
     }
   };
 
-  /**
-   * DELETE /api/exercises/:id
-   * Remove a custom exercise template definition.
-   */
+  // DELETE /api/exercises/:id
   public deleteCustomExercise = async (
-    req: AuthenticatedRequest, // Fixed: Changed from Request to AuthenticatedRequest
+    req: AuthenticatedRequest,
     res: Response,
   ): Promise<void> => {
     try {
       const creatorId = req.user?.id;
-      const id = parseInt(req.params.id as string, 10); // Added type assertion safely
+      const id = parseInt(req.params.id as string, 10);
 
       if (!creatorId) {
         res.status(401).json({ error: "Unauthorized. User ID missing." });
