@@ -1,10 +1,9 @@
 import type { Request, Response } from "express";
 import { WorkoutService } from "../services/workout.service.js";
 
-// 1. Define an interface extending Express Request to include the user object
 interface AuthenticatedRequest extends Request {
   user?: {
-    id: string; // Change to 'number' if your user IDs are integers
+    id: string;
   };
 }
 
@@ -62,7 +61,6 @@ export class WorkoutSessionController {
   ): Promise<void> => {
     try {
       const creatorId = req.user?.id;
-      // FIX 1: Cast req.params.id to string
       const id = parseInt(req.params.id as string, 10);
 
       if (!creatorId) {
@@ -87,7 +85,6 @@ export class WorkoutSessionController {
   ): Promise<void> => {
     try {
       const creatorId = req.user?.id;
-      // FIX 2: Cast req.params.id to string
       const id = parseInt(req.params.id as string, 10);
 
       if (!creatorId) {
@@ -108,7 +105,6 @@ export class WorkoutSessionController {
   // POST /api/workout-sessions/:id/sets
   public logSet = async (req: Request, res: Response): Promise<void> => {
     try {
-      // FIX 3: Cast req.params.id to string
       const workoutId = parseInt(req.params.id as string, 10);
       const { exerciseId, setNumber, weight, reps } = req.body;
 
