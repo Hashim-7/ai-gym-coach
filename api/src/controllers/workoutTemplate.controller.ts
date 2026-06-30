@@ -1,15 +1,31 @@
 import type { Request, Response } from "express";
 import { WorkoutService } from "../services/workout.service.js";
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
+
 export class WorkoutTemplateController {
   private workoutService = new WorkoutService();
 
   // POST /api/workout-templates
-  createTemplate = async (req: Request, res: Response): Promise<void> => {
+  createTemplate = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> => {
     try {
-      const { creatorId, name, exercises } = req.body;
+      const creatorId = req.user?.id;
+      const { name, exercises } = req.body;
+
+      if (!creatorId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
       const template = await this.workoutService.createTemplate(
-        creatorId as string,
+        creatorId,
         name as string,
         exercises,
       );
@@ -20,9 +36,18 @@ export class WorkoutTemplateController {
   };
 
   // GET /api/workout-templates
-  getUserTemplates = async (req: Request, res: Response): Promise<void> => {
+  getUserTemplates = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> => {
     try {
-      const creatorId = (req.query.creatorId as string) || "";
+      const creatorId = req.user?.id;
+
+      if (!creatorId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
       const templates = await this.workoutService.getUserTemplates(creatorId);
       res.status(200).json(templates);
     } catch (error) {
@@ -31,10 +56,19 @@ export class WorkoutTemplateController {
   };
 
   // GET /api/workout-templates/:id
-  getTemplateDetails = async (req: Request, res: Response): Promise<void> => {
+  getTemplateDetails = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> => {
     try {
       const templateId = req.params.id as string;
-      const creatorId = (req.query.creatorId as string) || "";
+      const creatorId = req.user?.id;
+
+      if (!creatorId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
       const template = await this.workoutService.getTemplateDetails(
         templateId,
         creatorId,
@@ -46,13 +80,23 @@ export class WorkoutTemplateController {
   };
 
   // PATCH /api/workout-templates/:id
-  updateTemplateName = async (req: Request, res: Response): Promise<void> => {
+  updateTemplateName = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const { creatorId, name } = req.body;
+      const creatorId = req.user?.id;
+      const { name } = req.body;
+
+      if (!creatorId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
       const updatedTemplate = await this.workoutService.updateTemplateName(
         id,
-        creatorId as string,
+        creatorId,
         name as string,
       );
       res.status(200).json(updatedTemplate);
@@ -111,11 +155,19 @@ export class WorkoutTemplateController {
   };
 
   // DELETE /api/workout-templates/:id
-  deleteTemplate = async (req: Request, res: Response): Promise<void> => {
+  deleteTemplate = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const creatorId =
-        (req.body.creatorId as string) || (req.query.creatorId as string) || "";
+      const creatorId = req.user?.id;
+
+      if (!creatorId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
       const deletedTemplate = await this.workoutService.deleteTemplate(
         id,
         creatorId,

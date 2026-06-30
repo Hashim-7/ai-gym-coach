@@ -103,10 +103,19 @@ export class WorkoutSessionController {
   };
 
   // POST /api/workout-sessions/:id/sets
-  public logSet = async (req: Request, res: Response): Promise<void> => {
+  public logSet = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ): Promise<void> => {
     try {
+      const creatorId = req.user?.id;
       const workoutId = parseInt(req.params.id as string, 10);
       const { exerciseId, setNumber, weight, reps } = req.body;
+
+      if (!creatorId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
       const loggedSet = await this.workoutService.logSet(
         workoutId,
@@ -114,6 +123,7 @@ export class WorkoutSessionController {
         Number(setNumber),
         Number(weight),
         Number(reps),
+        creatorId,
       );
       res.status(201).json(loggedSet);
     } catch (error) {

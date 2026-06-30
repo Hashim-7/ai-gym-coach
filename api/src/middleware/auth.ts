@@ -16,7 +16,9 @@ export const authMiddleware = (
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      throw new Error("JWT_SECRET is missing");
+      return res
+        .status(500)
+        .json({ message: "An internal server error occurred" });
     }
 
     const decoded = jwt.verify(token, secret);

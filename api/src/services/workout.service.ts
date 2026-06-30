@@ -237,14 +237,20 @@ export class WorkoutService {
     setNumber: number,
     weight: number,
     reps: number,
+    creatorId: string,
   ): Promise<Set> {
-    if (workoutId <= 0 || exerciseId <= 0)
-      throw new Error("Invalid Workout ID or Exercise ID.");
+    if (workoutId <= 0 || exerciseId <= 0 || !creatorId)
+      throw new Error("Invalid Workout ID, Exercise ID, or Creator ID.");
     if (setNumber <= 0) throw new Error("Set number must be greater than 0.");
     if (weight < 0 || reps < 0)
       throw new Error("Weight and reps cannot be negative.");
 
     try {
+      const session = await this.sessionRepo.readById(workoutId, creatorId);
+      if (!session) {
+        throw new Error("Workout session not found or access denied.");
+      }
+
       return await this.setRepo.create(
         workoutId,
         exerciseId,

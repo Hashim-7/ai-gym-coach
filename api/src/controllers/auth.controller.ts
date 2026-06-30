@@ -29,7 +29,7 @@ export class AuthController {
 
       // hidden message to prevent botspam with hidden field (honeypot)
       if (username) {
-        res.status(200).json({ message: "Login successful" });
+        res.status(400).json({ message: "Bad Request" });
         return;
       }
 
